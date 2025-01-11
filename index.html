@@ -73,6 +73,14 @@
     .details a:hover {
       text-decoration: underline;
     }
+    #loading {
+      display: none;
+      text-align: center;
+      margin-top: 20px;
+    }
+    #loading img {
+      width: 50px;
+    }
   </style>
 </head>
 <body>
@@ -82,14 +90,17 @@
   </header>
   <div class="container">
     <div>
-      <label for="uid">Enter UID:</label>
-      <input type="text" id="uid" placeholder="UID">
+      <label for="uid">Enter UID or Name:</label>
+      <input type="text" id="uid" placeholder="UID or Name">
       <button onclick="searchParticipant()">Search</button>
+    </div>
+    <div id="loading">
+      <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
     </div>
     <div class="details" id="details"></div>
   </div>
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
+    const apiUrl = "YOUR_APPS_SCRIPT_URL"; // Replace with your actual Apps Script URL
 
     function searchParticipant() {
       const uid = document.getElementById("uid").value;
@@ -97,9 +108,16 @@
         alert("Please enter a UID or Name.");
         return;
       }
+
+      // Show spinner
+      document.getElementById("loading").style.display = "block";
+
       fetch(`${apiUrl}?action=search&uid=${uid}`)
         .then(response => response.json())
         .then(data => {
+          // Hide spinner
+          document.getElementById("loading").style.display = "none";
+
           if (data.error) {
             document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
           } else {
@@ -118,13 +136,19 @@
               <button onclick="updateStatus('${data.uid}', 'Out')">Mark Out</button>
             `;
           }
+        })
+        .catch(() => {
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("details").innerHTML = `<p>Error fetching data. Please try again later.</p>`;
         });
     }
 
     function updateStatus(uid, status) {
+      document.getElementById("loading").style.display = "block"; // Show spinner
       fetch(`${apiUrl}?action=update&uid=${uid}&status=${status}`)
         .then(response => response.json())
         .then(data => {
+          document.getElementById("loading").style.display = "none"; // Hide spinner
           if (data.success) {
             alert("Status updated successfully!");
             searchParticipant(); // Refresh the details
