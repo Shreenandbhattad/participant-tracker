@@ -34,12 +34,16 @@
       position: absolute;
       top: 20px;
       right: 20px;
-      background: none;
+      padding: 10px 15px;
+      background-color: #333;
+      color: white;
       border: none;
+      border-radius: 20px;
       cursor: pointer;
+      font-size: 14px;
     }
-    .dark-mode-btn img {
-      width: 24px;
+    .dark-mode-btn:hover {
+      background-color: #555;
     }
     .container {
       flex: 1;
@@ -59,6 +63,7 @@
       width: 100%;
       border: 1px solid #ddd;
       border-radius: 4px;
+      color: black;
     }
     button {
       padding: 10px 15px;
@@ -121,8 +126,8 @@
       color: #f4f4f9;
     }
     .dark-mode input {
-      background-color: #2c2c2c;
-      color: white;
+      background-color: #ffffff;
+      color: black; /* Ensures text inside input remains black */
       border: 1px solid #555;
     }
     .dark-mode button {
@@ -135,9 +140,7 @@
   <header>
     <h1>Equilibrium 2025</h1>
     <h2>Participant Status Tracker</h2>
-    <button class="dark-mode-btn" onclick="toggleDarkMode()">
-      <img id="darkModeIcon" src="https://i.imgur.com/2qeyuxu.png" alt="Toggle Dark Mode">
-    </button>
+    <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
   </header>
   <div class="container">
     <div>
@@ -154,7 +157,7 @@
     <p>&copy; 2025 Equilibrium</p>
   </footer>
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your Apps Script URL
+    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
 
     function searchParticipant() {
       const uid = document.getElementById("uid").value;
@@ -214,13 +217,6 @@
     function toggleDarkMode() {
       const body = document.body;
       body.classList.toggle("dark-mode");
-
-      const icon = document.getElementById("darkModeIcon");
-      if (body.classList.contains("dark-mode")) {
-        icon.src = "https://i.imgur.com/ZL5k8QF.png"; // Moon icon
-      } else {
-        icon.src = "https://i.imgur.com/2qeyuxu.png"; // Sun icon
-      }
     }
   </script>
 </body>
