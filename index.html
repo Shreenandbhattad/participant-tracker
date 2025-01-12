@@ -22,6 +22,9 @@
       text-align: center;
       padding: 20px 0;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
     header h1 {
       font-size: 36px;
@@ -30,6 +33,10 @@
     header h2 {
       font-size: 24px;
       margin: 10px 0;
+    }
+    header img {
+      height: 50px; /* Adjust logo size */
+      margin-right: 15px; /* Spacing between logo and title */
     }
     .dark-mode-btn {
       position: absolute;
@@ -61,7 +68,7 @@
     }
     input {
       padding: 8px;
-      width: 100%;
+      width: calc(100% - 140px); /* Leave space for toggle button */
       border: 1px solid #ddd;
       border-radius: 4px;
       background-color: white;
@@ -77,6 +84,19 @@
     }
     button:hover {
       background-color: #0056b3;
+    }
+    .toggle-btn {
+      margin-left: 10px;
+      padding: 8px 15px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      float: right;
+    }
+    .toggle-btn:hover {
+      background-color: #555;
     }
     .details {
       margin-top: 20px;
@@ -136,16 +156,21 @@
 </head>
 <body>
   <header>
-    <h1>Equilibrium 2025</h1>
-    <h2>Participant Status Tracker</h2>
-    <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
+    <img src="https://github.com/Shreenandbhattad/participant-tracker/blob/main/logo.png?raw=true" alt="Logo">
+    <div>
+      <h1>Equilibrium 2025</h1>
+      <h2>Participant Status Tracker</h2>
+    </div>
+    <button class="dark-mode-btn" onclick="toggleDarkMode()" id="darkModeButton">Dark Mode</button>
   </header>
   <div class="container">
-    <div>
-      <label id="searchLabel" for="searchBox">Enter UID:</label>
+    <div style="display: flex; align-items: center;">
+      <label id="searchLabel" for="searchBox" style="flex-grow: 1;">Enter UID:</label>
       <input type="text" id="searchBox" placeholder="UID">
+      <button class="toggle-btn" onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
+    </div>
+    <div>
       <button onclick="searchParticipant()">Search</button>
-      <button onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
     </div>
     <div id="loading">
       <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
@@ -158,6 +183,7 @@
   <script>
     const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
     let isUIDSearch = true; // State for search mode
+    let isDarkMode = false; // State for dark mode
 
     function searchParticipant() {
       const searchBox = document.getElementById("searchBox");
@@ -219,6 +245,16 @@
       isUIDSearch = !isUIDSearch;
     }
 
+    function toggleDarkMode() {
+      const body = document.body;
+      const darkModeButton = document.getElementById("darkModeButton");
+
+      body.classList.toggle("dark-mode");
+      isDarkMode = !isDarkMode;
+
+      darkModeButton.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
+    }
+
     function updateStatus(uid, status) {
       document.getElementById("loading").style.display = "block"; // Show spinner
       fetch(`${apiUrl}?action=update&uid=${uid}&status=${status}`)
@@ -232,11 +268,6 @@
             alert(data.error || "Failed to update status.");
           }
         });
-    }
-
-    function toggleDarkMode() {
-      const body = document.body;
-      body.classList.toggle("dark-mode");
     }
   </script>
 </body>
