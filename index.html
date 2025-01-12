@@ -61,7 +61,7 @@
     }
     input {
       padding: 8px;
-      width: 100%;
+      width: calc(100% - 140px); /* Leave space for toggle button */
       border: 1px solid #ddd;
       border-radius: 4px;
       background-color: white;
@@ -77,6 +77,19 @@
     }
     button:hover {
       background-color: #0056b3;
+    }
+    .toggle-btn {
+      margin-left: 10px;
+      padding: 8px 15px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      float: right;
+    }
+    .toggle-btn:hover {
+      background-color: #555;
     }
     .details {
       margin-top: 20px;
@@ -141,11 +154,13 @@
     <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
   </header>
   <div class="container">
-    <div>
-      <label id="searchLabel" for="searchBox">Enter UID:</label>
+    <div style="display: flex; align-items: center;">
+      <label id="searchLabel" for="searchBox" style="flex-grow: 1;">Enter UID:</label>
       <input type="text" id="searchBox" placeholder="UID">
+      <button class="toggle-btn" onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
+    </div>
+    <div>
       <button onclick="searchParticipant()">Search</button>
-      <button onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
     </div>
     <div id="loading">
       <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
