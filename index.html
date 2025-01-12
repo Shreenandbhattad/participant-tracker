@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equilibrium 2025 | Participant Status Tracker</title>
   <style>
-    /* Same CSS with minor updates */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -22,15 +21,15 @@
       text-align: center;
       padding: 20px 0;
       position: relative;
+    }
+    header div {
       display: flex;
       align-items: center;
       justify-content: center;
     }
     header img {
-      position: absolute;
-      left: 20px;
-      width: 50px;
       height: 50px;
+      margin-right: 10px;
     }
     header h1 {
       font-size: 36px;
@@ -38,7 +37,7 @@
     }
     header h2 {
       font-size: 24px;
-      margin: 10px 0;
+      margin: 0;
     }
     .dark-mode-btn {
       position: absolute;
@@ -145,29 +144,96 @@
 </head>
 <body>
   <header>
-    <img src="https://github.com/Shreenandbhattad/participant-tracker/blob/main/logo.png?raw=true" alt="Logo">
-    <h1>Equilibrium 2025</h1>
-    <h2>Participant Status Tracker</h2>
+    <div>
+      <img src="https://github.com/Shreenandbhattad/participant-tracker/blob/main/logo.png?raw=true" alt="Logo">
+      <div>
+        <h1>Equilibrium 2025</h1>
+        <h2>Participant Status Tracker</h2>
+      </div>
+    </div>
     <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
   </header>
   <div class="container">
-    <!-- The rest of your page content goes here -->
+    <div>
+      <label for="uid">Enter UID or Name:</label>
+      <input type="text" id="uid" placeholder="UID or Name">
+      <button onclick="searchParticipant()">Search</button>
+    </div>
+    <div id="loading">
+      <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
+    </div>
+    <div class="details" id="details"></div>
   </div>
   <footer>
     <p>&copy; 2025 Equilibrium</p>
   </footer>
   <script>
-    const darkModeButton = document.querySelector('.dark-mode-btn');
+    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
+
+    function searchParticipant() {
+      const uid = document.getElementById("uid").value;
+      if (!uid) {
+        alert("Please enter a UID or Name.");
+        return;
+      }
+
+      // Show spinner
+      document.getElementById("loading").style.display = "block";
+
+      fetch(`${apiUrl}?action=search&uid=${uid}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("loading").style.display = "none"; // Hide spinner
+
+          if (data.error) {
+            document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
+          } else {
+            document.getElementById("details").innerHTML = `
+              <p><strong>UID:</strong> ${data.uid}</p>
+              <p><strong>Team ID:</strong> ${data.teamID}</p>
+              <p><strong>Team Name:</strong> ${data.teamName}</p>
+              <p><strong>Name:</strong> ${data.name}</p>
+              <p><strong>Email:</strong> ${data.email}</p>
+              <p><strong>Mobile:</strong> ${data.mobile}</p>
+              <p><strong>Gender:</strong> ${data.gender}</p>
+              <p><strong>Organisation:</strong> ${data.organisation}</p>
+              <p><strong>College ID:</strong> <a href="${data.collegeID}" target="_blank">View Image</a></p>
+              <p><strong>Status:</strong> ${data.status}</p>
+              <button onclick="updateStatus('${data.uid}', 'In')">Mark In</button>
+              <button onclick="updateStatus('${data.uid}', 'Out')">Mark Out</button>
+            `;
+          }
+        })
+        .catch(() => {
+          document.getElementById("loading").style.display = "none";
+          document.getElementById("details").innerHTML = `<p>Network error. Please check your connection and try again.</p>`;
+        });
+    }
+
+    function updateStatus(uid, status) {
+      document.getElementById("loading").style.display = "block"; // Show spinner
+      fetch(`${apiUrl}?action=update&uid=${uid}&status=${status}`)
+        .then(response => response.json())
+        .then(data => {
+          document.getElementById("loading").style.display = "none"; // Hide spinner
+          if (data.success) {
+            alert("Status updated successfully!");
+            searchParticipant(); // Refresh the details
+          } else {
+            alert(data.error || "Failed to update status.");
+          }
+        });
+    }
 
     function toggleDarkMode() {
       const body = document.body;
       body.classList.toggle("dark-mode");
-
-      // Update button text based on the current mode
+      
+      const darkModeBtn = document.querySelector(".dark-mode-btn");
       if (body.classList.contains("dark-mode")) {
-        darkModeButton.textContent = "Light Mode";
+        darkModeBtn.textContent = "Light Mode"; // Switch to Light Mode text
       } else {
-        darkModeButton.textContent = "Dark Mode";
+        darkModeBtn.textContent = "Dark Mode"; // Switch back to Dark Mode text
       }
     }
   </script>
