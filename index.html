@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equilibrium 2025 | Participant Status Tracker</title>
   <style>
+    /* Same CSS as before */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -21,18 +22,6 @@
       text-align: center;
       padding: 20px 0;
       position: relative;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    header img {
-      width: 50px;
-      height: 50px;
-      border-radius: 50%; /* Makes the logo a circle */
-      position: absolute;
-      left: 20px;
-      top: 50%;
-      transform: translateY(-50%);
     }
     header h1 {
       font-size: 36px;
@@ -40,7 +29,7 @@
     }
     header h2 {
       font-size: 24px;
-      margin: 10px 0 0;
+      margin: 10px 0;
     }
     .dark-mode-btn {
       position: absolute;
@@ -147,20 +136,17 @@
 </head>
 <body>
   <header>
-    <img src="https://github.com/Shreenandbhattad/participant-tracker/blob/main/logo.png?raw=true" alt="Logo">
-    <div>
-      <h1>Equilibrium 2025</h1>
-      <h2>Participant Status Tracker</h2>
-    </div>
+    <h1>Equilibrium 2025</h1>
+    <h2>Participant Status Tracker</h2>
     <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
   </header>
   <div class="container">
-    <label id="search-label">Enter UID:</label>
-    <div style="display: flex; gap: 10px;">
+    <div>
+      <label id="searchLabel" for="searchBox">Enter UID:</label>
+      <input type="text" id="searchBox" placeholder="UID">
       <button onclick="searchParticipant()">Search</button>
-      <button onclick="toggleSearchType()" id="toggle-search-btn">Search by Name</button>
+      <button onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
     </div>
-    <input type="text" id="search-input" placeholder="Enter UID">
     <div id="loading">
       <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
     </div>
@@ -171,36 +157,26 @@
   </footer>
   <script>
     const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
-
-    let searchType = "uid"; // Default search type
-
-    function toggleSearchType() {
-      if (searchType === "uid") {
-        searchType = "name";
-        document.getElementById("toggle-search-btn").innerText = "Search by UID";
-        document.getElementById("search-label").innerText = "Enter Name:";
-        document.getElementById("search-input").placeholder = "Enter Name";
-      } else {
-        searchType = "uid";
-        document.getElementById("toggle-search-btn").innerText = "Search by Name";
-        document.getElementById("search-label").innerText = "Enter UID:";
-        document.getElementById("search-input").placeholder = "Enter UID";
-      }
-    }
+    let isUIDSearch = true; // State for search mode
 
     function searchParticipant() {
-      const input = document.getElementById("search-input").value;
-      if (!input) {
-        alert(`Please enter a ${searchType === "uid" ? "UID" : "Name"}.`);
+      const searchBox = document.getElementById("searchBox");
+      const searchValue = searchBox.value;
+      if (!searchValue) {
+        alert(`Please enter a ${isUIDSearch ? 'UID' : 'Name'}.`);
         return;
       }
 
-      document.getElementById("loading").style.display = "block"; // Show spinner
+      // Show spinner
+      document.getElementById("loading").style.display = "block";
 
-      fetch(`${apiUrl}?action=search&${searchType}=${input}`)
+      const searchParam = isUIDSearch ? `uid=${searchValue}` : `name=${searchValue}`;
+
+      fetch(`${apiUrl}?action=search&${searchParam}`)
         .then(response => response.json())
         .then(data => {
           document.getElementById("loading").style.display = "none"; // Hide spinner
+
           if (data.error) {
             document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
           } else {
@@ -226,6 +202,23 @@
         });
     }
 
+    function toggleSearchMode() {
+      const searchLabel = document.getElementById("searchLabel");
+      const searchBox = document.getElementById("searchBox");
+      const toggleButton = document.getElementById("toggleButton");
+
+      if (isUIDSearch) {
+        searchLabel.textContent = "Enter Name:";
+        searchBox.placeholder = "Name";
+        toggleButton.textContent = "Search by UID";
+      } else {
+        searchLabel.textContent = "Enter UID:";
+        searchBox.placeholder = "UID";
+        toggleButton.textContent = "Search by Name";
+      }
+      isUIDSearch = !isUIDSearch;
+    }
+
     function updateStatus(uid, status) {
       document.getElementById("loading").style.display = "block"; // Show spinner
       fetch(`${apiUrl}?action=update&uid=${uid}&status=${status}`)
@@ -244,8 +237,6 @@
     function toggleDarkMode() {
       const body = document.body;
       body.classList.toggle("dark-mode");
-      const modeButton = document.querySelector(".dark-mode-btn");
-      modeButton.innerText = body.classList.contains("dark-mode") ? "Light Mode" : "Dark Mode";
     }
   </script>
 </body>
