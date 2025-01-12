@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equilibrium 2025 | Participant Status Tracker</title>
   <style>
+    /* Existing styles */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -141,9 +142,14 @@
   </header>
   <div class="container">
     <div>
-      <label for="uid">Enter UID or Name:</label>
-      <input type="text" id="uid" placeholder="UID or Name">
-      <button onclick="searchParticipant()">Search</button>
+      <label for="uid">Search by UID:</label>
+      <input type="text" id="uid" placeholder="Enter UID">
+      <button onclick="searchByUID()">Search</button>
+    </div>
+    <div>
+      <label for="name">Search by Name:</label>
+      <input type="text" id="name" placeholder="Enter Name">
+      <button onclick="searchByName()">Search</button>
     </div>
     <div id="loading">
       <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
@@ -154,19 +160,31 @@
     <p>&copy; 2025 Equilibrium</p>
   </footer>
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
+    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec";
 
-    function searchParticipant() {
+    function searchByUID() {
       const uid = document.getElementById("uid").value;
       if (!uid) {
-        alert("Please enter a UID or Name.");
+        alert("Please enter a UID.");
         return;
       }
+      searchParticipant("uid", uid);
+    }
 
+    function searchByName() {
+      const name = document.getElementById("name").value;
+      if (!name) {
+        alert("Please enter a Name.");
+        return;
+      }
+      searchParticipant("name", name);
+    }
+
+    function searchParticipant(type, value) {
       // Show spinner
       document.getElementById("loading").style.display = "block";
 
-      fetch(`${apiUrl}?action=search&uid=${uid}`)
+      fetch(`${apiUrl}?action=search&${type}=${encodeURIComponent(value)}`)
         .then(response => response.json())
         .then(data => {
           document.getElementById("loading").style.display = "none"; // Hide spinner
@@ -192,7 +210,7 @@
         })
         .catch(() => {
           document.getElementById("loading").style.display = "none";
-          document.getElementById("details").innerHTML = `<p>Network error. Please check your connection and try again.</p>`;
+          document.getElementById("details").innerHTML = `<p>Network error. Please try again later.</p>`;
         });
     }
 
@@ -204,7 +222,7 @@
           document.getElementById("loading").style.display = "none"; // Hide spinner
           if (data.success) {
             alert("Status updated successfully!");
-            searchParticipant(); // Refresh the details
+            searchByUID(); // Refresh details for UID search
           } else {
             alert(data.error || "Failed to update status.");
           }
