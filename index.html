@@ -26,11 +26,13 @@
       justify-content: center;
     }
     header img {
-      position: absolute;
-      left: 20px;
       width: 50px;
       height: 50px;
-      border-radius: 50%; /* Makes the image a perfect circle */
+      border-radius: 50%; /* Makes the logo a circle */
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
     }
     header h1 {
       font-size: 36px;
@@ -38,7 +40,7 @@
     }
     header h2 {
       font-size: 24px;
-      margin: 5px 0 0;
+      margin: 10px 0 0;
     }
     .dark-mode-btn {
       position: absolute;
@@ -153,12 +155,12 @@
     <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
   </header>
   <div class="container">
-    <div>
-      <label for="searchBox">Enter UID or Name:</label>
-      <input type="text" id="searchBox" placeholder="UID">
-      <button id="toggleSearchType" onclick="toggleSearch()">Search by Name</button>
+    <label id="search-label">Enter UID:</label>
+    <div style="display: flex; gap: 10px;">
       <button onclick="searchParticipant()">Search</button>
+      <button onclick="toggleSearchType()" id="toggle-search-btn">Search by Name</button>
     </div>
+    <input type="text" id="search-input" placeholder="Enter UID">
     <div id="loading">
       <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
     </div>
@@ -170,23 +172,35 @@
   <script>
     const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
 
-    let searchType = "uid";
+    let searchType = "uid"; // Default search type
+
+    function toggleSearchType() {
+      if (searchType === "uid") {
+        searchType = "name";
+        document.getElementById("toggle-search-btn").innerText = "Search by UID";
+        document.getElementById("search-label").innerText = "Enter Name:";
+        document.getElementById("search-input").placeholder = "Enter Name";
+      } else {
+        searchType = "uid";
+        document.getElementById("toggle-search-btn").innerText = "Search by Name";
+        document.getElementById("search-label").innerText = "Enter UID:";
+        document.getElementById("search-input").placeholder = "Enter UID";
+      }
+    }
 
     function searchParticipant() {
-      const query = document.getElementById("searchBox").value;
-      if (!query) {
-        alert(`Please enter a ${searchType.toUpperCase()}.`);
+      const input = document.getElementById("search-input").value;
+      if (!input) {
+        alert(`Please enter a ${searchType === "uid" ? "UID" : "Name"}.`);
         return;
       }
 
-      // Show spinner
-      document.getElementById("loading").style.display = "block";
+      document.getElementById("loading").style.display = "block"; // Show spinner
 
-      fetch(`${apiUrl}?action=search&${searchType}=${query}`)
+      fetch(`${apiUrl}?action=search&${searchType}=${input}`)
         .then(response => response.json())
         .then(data => {
           document.getElementById("loading").style.display = "none"; // Hide spinner
-
           if (data.error) {
             document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
           } else {
@@ -227,31 +241,11 @@
         });
     }
 
-    function toggleSearch() {
-      const searchBox = document.getElementById("searchBox");
-      const toggleButton = document.getElementById("toggleSearchType");
-
-      if (searchType === "uid") {
-        searchType = "name";
-        searchBox.placeholder = "Name";
-        toggleButton.innerText = "Search by UID";
-      } else {
-        searchType = "uid";
-        searchBox.placeholder = "UID";
-        toggleButton.innerText = "Search by Name";
-      }
-    }
-
     function toggleDarkMode() {
       const body = document.body;
-      const darkModeButton = document.querySelector(".dark-mode-btn");
       body.classList.toggle("dark-mode");
-
-      if (body.classList.contains("dark-mode")) {
-        darkModeButton.innerText = "Light Mode";
-      } else {
-        darkModeButton.innerText = "Dark Mode";
-      }
+      const modeButton = document.querySelector(".dark-mode-btn");
+      modeButton.innerText = body.classList.contains("dark-mode") ? "Light Mode" : "Dark Mode";
     }
   </script>
 </body>
