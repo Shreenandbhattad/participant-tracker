@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equilibrium 2025 | Participant Status Tracker</title>
   <style>
+    /* Same CSS as before */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -18,34 +19,22 @@
     header {
       background-color: #0056b3;
       color: white;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 10px 20px;
+      text-align: center;
+      padding: 20px 0;
       position: relative;
     }
-    header div {
-      display: flex;
-      align-items: center;
-    }
-    header img.logo {
-      height: 50px;
-      width: 50px;
-      border-radius: 50%;
-      overflow: hidden;
-      object-fit: cover;
-      margin-right: 15px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    }
     header h1 {
-      font-size: 24px;
+      font-size: 36px;
       margin: 0;
     }
     header h2 {
-      font-size: 16px;
-      margin: 0;
+      font-size: 24px;
+      margin: 10px 0;
     }
     .dark-mode-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
       padding: 10px 15px;
       background-color: #333;
       color: white;
@@ -95,7 +84,7 @@
       background-color: #f9f9f9;
       border-radius: 8px;
       box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      color: #333;
+      color: #333; /* Ensure visible text in light mode */
     }
     .details p {
       margin: 10px 0;
@@ -147,21 +136,16 @@
 </head>
 <body>
   <header>
-    <div>
-      <img src="https://github.com/Shreenandbhattad/participant-tracker/blob/main/logo.png?raw=true" alt="Logo" class="logo">
-      <div>
-        <h1>Equilibrium 2025</h1>
-        <h2>Participant Status Tracker</h2>
-      </div>
-    </div>
+    <h1>Equilibrium 2025</h1>
+    <h2>Participant Status Tracker</h2>
     <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
   </header>
   <div class="container">
     <div>
-      <label for="uid">Enter UID or Name:</label>
-      <input type="text" id="uid" placeholder="UID or Name">
+      <label id="searchLabel" for="searchBox">Enter UID:</label>
+      <input type="text" id="searchBox" placeholder="UID">
       <button onclick="searchParticipant()">Search</button>
-      <button id="toggleSearchType" onclick="toggleSearchType()">Search by Name</button>
+      <button onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
     </div>
     <div id="loading">
       <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
@@ -172,32 +156,26 @@
     <p>&copy; 2025 Equilibrium</p>
   </footer>
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec";
-
-    let isUidSearch = true; // Default search is UID
-
-    function toggleSearchType() {
-      isUidSearch = !isUidSearch;
-      const inputBox = document.getElementById("uid");
-      const toggleButton = document.getElementById("toggleSearchType");
-      inputBox.placeholder = isUidSearch ? "UID" : "Name";
-      toggleButton.textContent = isUidSearch ? "Search by Name" : "Search by UID";
-    }
+    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
+    let isUIDSearch = true; // State for search mode
 
     function searchParticipant() {
-      const query = document.getElementById("uid").value;
-      if (!query) {
-        alert("Please enter a value.");
+      const searchBox = document.getElementById("searchBox");
+      const searchValue = searchBox.value;
+      if (!searchValue) {
+        alert(`Please enter a ${isUIDSearch ? 'UID' : 'Name'}.`);
         return;
       }
 
-      const param = isUidSearch ? "uid" : "name";
+      // Show spinner
       document.getElementById("loading").style.display = "block";
 
-      fetch(`${apiUrl}?action=search&${param}=${query}`)
+      const searchParam = isUIDSearch ? `uid=${searchValue}` : `name=${searchValue}`;
+
+      fetch(`${apiUrl}?action=search&${searchParam}`)
         .then(response => response.json())
         .then(data => {
-          document.getElementById("loading").style.display = "none";
+          document.getElementById("loading").style.display = "none"; // Hide spinner
 
           if (data.error) {
             document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
@@ -220,19 +198,36 @@
         })
         .catch(() => {
           document.getElementById("loading").style.display = "none";
-          document.getElementById("details").innerHTML = `<p>Network error. Please try again.</p>`;
+          document.getElementById("details").innerHTML = `<p>Network error. Please check your connection and try again.</p>`;
         });
     }
 
+    function toggleSearchMode() {
+      const searchLabel = document.getElementById("searchLabel");
+      const searchBox = document.getElementById("searchBox");
+      const toggleButton = document.getElementById("toggleButton");
+
+      if (isUIDSearch) {
+        searchLabel.textContent = "Enter Name:";
+        searchBox.placeholder = "Name";
+        toggleButton.textContent = "Search by UID";
+      } else {
+        searchLabel.textContent = "Enter UID:";
+        searchBox.placeholder = "UID";
+        toggleButton.textContent = "Search by Name";
+      }
+      isUIDSearch = !isUIDSearch;
+    }
+
     function updateStatus(uid, status) {
-      document.getElementById("loading").style.display = "block";
+      document.getElementById("loading").style.display = "block"; // Show spinner
       fetch(`${apiUrl}?action=update&uid=${uid}&status=${status}`)
         .then(response => response.json())
         .then(data => {
-          document.getElementById("loading").style.display = "none";
+          document.getElementById("loading").style.display = "none"; // Hide spinner
           if (data.success) {
             alert("Status updated successfully!");
-            searchParticipant();
+            searchParticipant(); // Refresh the details
           } else {
             alert(data.error || "Failed to update status.");
           }
@@ -241,9 +236,7 @@
 
     function toggleDarkMode() {
       const body = document.body;
-      const button = document.querySelector(".dark-mode-btn");
       body.classList.toggle("dark-mode");
-      button.textContent = body.classList.contains("dark-mode") ? "Light Mode" : "Dark Mode";
     }
   </script>
 </body>
