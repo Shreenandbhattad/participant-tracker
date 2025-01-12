@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equilibrium 2025 | Participant Status Tracker</title>
   <style>
-    /* Same CSS as before */
+    /* Same CSS with minor updates */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -26,6 +26,12 @@
       align-items: center;
       justify-content: center;
     }
+    header img {
+      position: absolute;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+    }
     header h1 {
       font-size: 36px;
       margin: 0;
@@ -33,10 +39,6 @@
     header h2 {
       font-size: 24px;
       margin: 10px 0;
-    }
-    header img {
-      height: 50px; /* Adjust logo size */
-      margin-right: 15px; /* Spacing between logo and title */
     }
     .dark-mode-btn {
       position: absolute;
@@ -68,7 +70,7 @@
     }
     input {
       padding: 8px;
-      width: calc(100% - 140px); /* Leave space for toggle button */
+      width: 100%;
       border: 1px solid #ddd;
       border-radius: 4px;
       background-color: white;
@@ -84,19 +86,6 @@
     }
     button:hover {
       background-color: #0056b3;
-    }
-    .toggle-btn {
-      margin-left: 10px;
-      padding: 8px 15px;
-      background-color: #333;
-      color: white;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-      float: right;
-    }
-    .toggle-btn:hover {
-      background-color: #555;
     }
     .details {
       margin-top: 20px;
@@ -157,117 +146,29 @@
 <body>
   <header>
     <img src="https://github.com/Shreenandbhattad/participant-tracker/blob/main/logo.png?raw=true" alt="Logo">
-    <div>
-      <h1>Equilibrium 2025</h1>
-      <h2>Participant Status Tracker</h2>
-    </div>
-    <button class="dark-mode-btn" onclick="toggleDarkMode()" id="darkModeButton">Dark Mode</button>
+    <h1>Equilibrium 2025</h1>
+    <h2>Participant Status Tracker</h2>
+    <button class="dark-mode-btn" onclick="toggleDarkMode()">Dark Mode</button>
   </header>
   <div class="container">
-    <div style="display: flex; align-items: center;">
-      <label id="searchLabel" for="searchBox" style="flex-grow: 1;">Enter UID:</label>
-      <input type="text" id="searchBox" placeholder="UID">
-      <button class="toggle-btn" onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
-    </div>
-    <div>
-      <button onclick="searchParticipant()">Search</button>
-    </div>
-    <div id="loading">
-      <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
-    </div>
-    <div class="details" id="details"></div>
+    <!-- The rest of your page content goes here -->
   </div>
   <footer>
     <p>&copy; 2025 Equilibrium</p>
   </footer>
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
-    let isUIDSearch = true; // State for search mode
-    let isDarkMode = false; // State for dark mode
-
-    function searchParticipant() {
-      const searchBox = document.getElementById("searchBox");
-      const searchValue = searchBox.value;
-      if (!searchValue) {
-        alert(`Please enter a ${isUIDSearch ? 'UID' : 'Name'}.`);
-        return;
-      }
-
-      // Show spinner
-      document.getElementById("loading").style.display = "block";
-
-      const searchParam = isUIDSearch ? `uid=${searchValue}` : `name=${searchValue}`;
-
-      fetch(`${apiUrl}?action=search&${searchParam}`)
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById("loading").style.display = "none"; // Hide spinner
-
-          if (data.error) {
-            document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
-          } else {
-            document.getElementById("details").innerHTML = `
-              <p><strong>UID:</strong> ${data.uid}</p>
-              <p><strong>Team ID:</strong> ${data.teamID}</p>
-              <p><strong>Team Name:</strong> ${data.teamName}</p>
-              <p><strong>Name:</strong> ${data.name}</p>
-              <p><strong>Email:</strong> ${data.email}</p>
-              <p><strong>Mobile:</strong> ${data.mobile}</p>
-              <p><strong>Gender:</strong> ${data.gender}</p>
-              <p><strong>Organisation:</strong> ${data.organisation}</p>
-              <p><strong>College ID:</strong> <a href="${data.collegeID}" target="_blank">View Image</a></p>
-              <p><strong>Status:</strong> ${data.status}</p>
-              <button onclick="updateStatus('${data.uid}', 'In')">Mark In</button>
-              <button onclick="updateStatus('${data.uid}', 'Out')">Mark Out</button>
-            `;
-          }
-        })
-        .catch(() => {
-          document.getElementById("loading").style.display = "none";
-          document.getElementById("details").innerHTML = `<p>Network error. Please check your connection and try again.</p>`;
-        });
-    }
-
-    function toggleSearchMode() {
-      const searchLabel = document.getElementById("searchLabel");
-      const searchBox = document.getElementById("searchBox");
-      const toggleButton = document.getElementById("toggleButton");
-
-      if (isUIDSearch) {
-        searchLabel.textContent = "Enter Name:";
-        searchBox.placeholder = "Name";
-        toggleButton.textContent = "Search by UID";
-      } else {
-        searchLabel.textContent = "Enter UID:";
-        searchBox.placeholder = "UID";
-        toggleButton.textContent = "Search by Name";
-      }
-      isUIDSearch = !isUIDSearch;
-    }
+    const darkModeButton = document.querySelector('.dark-mode-btn');
 
     function toggleDarkMode() {
       const body = document.body;
-      const darkModeButton = document.getElementById("darkModeButton");
-
       body.classList.toggle("dark-mode");
-      isDarkMode = !isDarkMode;
 
-      darkModeButton.textContent = isDarkMode ? "Light Mode" : "Dark Mode";
-    }
-
-    function updateStatus(uid, status) {
-      document.getElementById("loading").style.display = "block"; // Show spinner
-      fetch(`${apiUrl}?action=update&uid=${uid}&status=${status}`)
-        .then(response => response.json())
-        .then(data => {
-          document.getElementById("loading").style.display = "none"; // Hide spinner
-          if (data.success) {
-            alert("Status updated successfully!");
-            searchParticipant(); // Refresh the details
-          } else {
-            alert(data.error || "Failed to update status.");
-          }
-        });
+      // Update button text based on the current mode
+      if (body.classList.contains("dark-mode")) {
+        darkModeButton.textContent = "Light Mode";
+      } else {
+        darkModeButton.textContent = "Dark Mode";
+      }
     }
   </script>
 </body>
