@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Equilibrium 2025 | Participant Status Tracker</title>
   <style>
-    /* Existing styles */
+    /* Same CSS as before */
     body {
       font-family: 'Arial', sans-serif;
       background-color: #f4f4f9;
@@ -142,14 +142,10 @@
   </header>
   <div class="container">
     <div>
-      <label for="uid">Search by UID:</label>
-      <input type="text" id="uid" placeholder="Enter UID">
-      <button onclick="searchByUID()">Search</button>
-    </div>
-    <div>
-      <label for="name">Search by Name:</label>
-      <input type="text" id="name" placeholder="Enter Name">
-      <button onclick="searchByName()">Search</button>
+      <label id="searchLabel" for="searchBox">Enter UID:</label>
+      <input type="text" id="searchBox" placeholder="UID">
+      <button onclick="searchParticipant()">Search</button>
+      <button onclick="toggleSearchMode()" id="toggleButton">Search by Name</button>
     </div>
     <div id="loading">
       <img src="https://i.imgur.com/llF5iyg.gif" alt="Loading...">
@@ -160,31 +156,23 @@
     <p>&copy; 2025 Equilibrium</p>
   </footer>
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec";
+    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
+    let isUIDSearch = true; // State for search mode
 
-    function searchByUID() {
-      const uid = document.getElementById("uid").value;
-      if (!uid) {
-        alert("Please enter a UID.");
+    function searchParticipant() {
+      const searchBox = document.getElementById("searchBox");
+      const searchValue = searchBox.value;
+      if (!searchValue) {
+        alert(`Please enter a ${isUIDSearch ? 'UID' : 'Name'}.`);
         return;
       }
-      searchParticipant("uid", uid);
-    }
 
-    function searchByName() {
-      const name = document.getElementById("name").value;
-      if (!name) {
-        alert("Please enter a Name.");
-        return;
-      }
-      searchParticipant("name", name);
-    }
-
-    function searchParticipant(type, value) {
       // Show spinner
       document.getElementById("loading").style.display = "block";
 
-      fetch(`${apiUrl}?action=search&${type}=${encodeURIComponent(value)}`)
+      const searchParam = isUIDSearch ? `uid=${searchValue}` : `name=${searchValue}`;
+
+      fetch(`${apiUrl}?action=search&${searchParam}`)
         .then(response => response.json())
         .then(data => {
           document.getElementById("loading").style.display = "none"; // Hide spinner
@@ -210,8 +198,25 @@
         })
         .catch(() => {
           document.getElementById("loading").style.display = "none";
-          document.getElementById("details").innerHTML = `<p>Network error. Please try again later.</p>`;
+          document.getElementById("details").innerHTML = `<p>Network error. Please check your connection and try again.</p>`;
         });
+    }
+
+    function toggleSearchMode() {
+      const searchLabel = document.getElementById("searchLabel");
+      const searchBox = document.getElementById("searchBox");
+      const toggleButton = document.getElementById("toggleButton");
+
+      if (isUIDSearch) {
+        searchLabel.textContent = "Enter Name:";
+        searchBox.placeholder = "Name";
+        toggleButton.textContent = "Search by UID";
+      } else {
+        searchLabel.textContent = "Enter UID:";
+        searchBox.placeholder = "UID";
+        toggleButton.textContent = "Search by Name";
+      }
+      isUIDSearch = !isUIDSearch;
     }
 
     function updateStatus(uid, status) {
@@ -222,7 +227,7 @@
           document.getElementById("loading").style.display = "none"; // Hide spinner
           if (data.success) {
             alert("Status updated successfully!");
-            searchByUID(); // Refresh details for UID search
+            searchParticipant(); // Refresh the details
           } else {
             alert(data.error || "Failed to update status.");
           }
