@@ -156,7 +156,7 @@
     <p>&copy; 2025 Equilibrium</p>
   </footer>
   <script>
-    const apiUrl = "https://script.google.com/macros/s/AKfycbzBJkRerFKQtB08WpehQtU8juBXwi0YiwAcAaLmAuLbTFn4z758W8PjE-5E4zbev2g2Ow/exec"; // Replace with your actual Apps Script URL
+    const apiUrl = "https://script.google.com/macros/s/AKfycbw-R_lfutGE2Gg7SPPgcNOWIKxLyZiSVfeLr_5KTqPjp-_sQvd9M_gLfdhnM2IMVn93qg/exec"; // Replace with your actual Apps Script URL
     let isUIDSearch = true; // State for search mode
 
     function searchParticipant() {
@@ -191,6 +191,7 @@
               <p><strong>Organisation:</strong> ${data.organisation}</p>
               <p><strong>College ID:</strong> <a href="${data.collegeID}" target="_blank">View Image</a></p>
               <p><strong>Status:</strong> ${data.status}</p>
+              <p><strong>Serial Number:</strong> ${data.serial || "Not Assigned"}</p>
               <button onclick="updateStatus('${data.uid}', 'In')">Mark In</button>
               <button onclick="updateStatus('${data.uid}', 'Out')">Mark Out</button>
             `;
@@ -233,50 +234,6 @@
           }
         });
     }
-
-    function searchParticipant() {
-  const searchBox = document.getElementById("searchBox");
-  const searchValue = searchBox.value;
-  if (!searchValue) {
-    alert(`Please enter a ${isUIDSearch ? 'UID' : 'Name'}.`);
-    return;
-  }
-
-  document.getElementById("loading").style.display = "block";
-
-  const searchParam = isUIDSearch ? `uid=${searchValue}` : `name=${searchValue}`;
-
-  fetch(`${apiUrl}?action=search&${searchParam}`)
-    .then(response => response.json())
-    .then(data => {
-      document.getElementById("loading").style.display = "none";
-
-      if (data.error) {
-        document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
-      } else {
-        document.getElementById("details").innerHTML = `
-          <p><strong>UID:</strong> ${data.uid}</p>
-          <p><strong>Team ID:</strong> ${data.teamID}</p>
-          <p><strong>Team Name:</strong> ${data.teamName}</p>
-          <p><strong>Name:</strong> ${data.name}</p>
-          <p><strong>Email:</strong> ${data.email}</p>
-          <p><strong>Mobile:</strong> ${data.mobile}</p>
-          <p><strong>Gender:</strong> ${data.gender}</p>
-          <p><strong>Organisation:</strong> ${data.organisation}</p>
-          <p><strong>College ID:</strong> <a href="${data.collegeID}" target="_blank">View Image</a></p>
-          <p><strong>Status:</strong> ${data.status}</p>
-          <p><strong>Serial Number:</strong> ${data.serial || "Not Assigned"}</p>
-          <button onclick="updateStatus('${data.uid}', 'In')">Mark In</button>
-          <button onclick="updateStatus('${data.uid}', 'Out')">Mark Out</button>
-        `;
-      }
-    })
-    .catch(() => {
-      document.getElementById("loading").style.display = "none";
-      document.getElementById("details").innerHTML = `<p>Network error. Please check your connection and try again.</p>`;
-    });
-}
-
 
     function toggleDarkMode() {
       const body = document.body;
