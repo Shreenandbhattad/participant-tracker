@@ -234,6 +234,50 @@
         });
     }
 
+    function searchParticipant() {
+  const searchBox = document.getElementById("searchBox");
+  const searchValue = searchBox.value;
+  if (!searchValue) {
+    alert(`Please enter a ${isUIDSearch ? 'UID' : 'Name'}.`);
+    return;
+  }
+
+  document.getElementById("loading").style.display = "block";
+
+  const searchParam = isUIDSearch ? `uid=${searchValue}` : `name=${searchValue}`;
+
+  fetch(`${apiUrl}?action=search&${searchParam}`)
+    .then(response => response.json())
+    .then(data => {
+      document.getElementById("loading").style.display = "none";
+
+      if (data.error) {
+        document.getElementById("details").innerHTML = `<p>${data.error}</p>`;
+      } else {
+        document.getElementById("details").innerHTML = `
+          <p><strong>UID:</strong> ${data.uid}</p>
+          <p><strong>Team ID:</strong> ${data.teamID}</p>
+          <p><strong>Team Name:</strong> ${data.teamName}</p>
+          <p><strong>Name:</strong> ${data.name}</p>
+          <p><strong>Email:</strong> ${data.email}</p>
+          <p><strong>Mobile:</strong> ${data.mobile}</p>
+          <p><strong>Gender:</strong> ${data.gender}</p>
+          <p><strong>Organisation:</strong> ${data.organisation}</p>
+          <p><strong>College ID:</strong> <a href="${data.collegeID}" target="_blank">View Image</a></p>
+          <p><strong>Status:</strong> ${data.status}</p>
+          <p><strong>Serial Number:</strong> ${data.serial || "Not Assigned"}</p>
+          <button onclick="updateStatus('${data.uid}', 'In')">Mark In</button>
+          <button onclick="updateStatus('${data.uid}', 'Out')">Mark Out</button>
+        `;
+      }
+    })
+    .catch(() => {
+      document.getElementById("loading").style.display = "none";
+      document.getElementById("details").innerHTML = `<p>Network error. Please check your connection and try again.</p>`;
+    });
+}
+
+
     function toggleDarkMode() {
       const body = document.body;
       body.classList.toggle("dark-mode");
